@@ -1,0 +1,8 @@
+TICK_RATE_HZ -> é a unidade basica temporal (tick em SOTR ) 
+
+Pergunta a responder no assignment 2: Posso ou não posso fazer uma ligação entre um esp32-c3 e um TC74
+    A "Supply voltage" parece-me que se integra bem.
+    A corrente, parece-me que a do ESP32 precisa de um valor mais elevado do q o TC74 suporta
+    
+
+

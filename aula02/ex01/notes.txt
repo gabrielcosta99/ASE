@@ -1,0 +1,5 @@
+O led usa 10 mA. Nele deve passar 1.5V, logo a resistencia é de: R=(3.3-1.5)/10*10**(-3) = 180
+
+O led tem o ânodo(liga ao +) e o kátodo(liga ao -).
+
+Os GPIOs seguros são os 0-7 e o 10

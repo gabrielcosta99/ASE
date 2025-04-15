@@ -1,0 +1,4 @@
+    The TC74 operates at 2.7V to 5.5V. The ESP32-C3 operates at 3.3V logic levels. Therefore, it is compatible in terms of
+voltage.
+    In terms of power consumption, the TC74 typically consumes 10 µA on standby and 350 μA while operating.
+We might need an external regulator in order for ESP32-C3 to supply enough power
