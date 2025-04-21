@@ -59,7 +59,7 @@ void app_main(void)
             ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
             ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_1 + 1, ADC1_CHAN, voltage[0][0]);
             
-            float kelvin = voltage[0][0]/10;  // convert mV to Kelvin
+            float kelvin = voltage[0][0]*2/10.0;  // convert mV to Kelvin (multiply by 2 first because of the voltage divider)
             float celsius = kelvin - 273.15; // convert Kelvin to Celsius
             printf("Measured temperature: %f ºC\n", celsius);
         }
