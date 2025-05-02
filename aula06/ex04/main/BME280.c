@@ -4,9 +4,9 @@
 #include "freertos/FreeRTOS.h"
 #include "bme280_sensor_spi.h"
 
-#define BME280_SDI_IO         3
+#define BME280_SDI_IO         6
 #define BME280_SDO_IO         9
-#define BME280_SCK_IO         2
+#define BME280_SCK_IO         7
 #define BME280_CS_IO          8
 
 

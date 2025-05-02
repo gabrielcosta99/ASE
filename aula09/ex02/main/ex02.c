@@ -9,10 +9,20 @@
 #define TC74_SDA_IO         3
 #define TC74_SCL_IO         2
 
+typedef struct temperature_data
+{
+    uint8_t temperature;
+    uint32_t timestamp; // add a timestamp (number of ticks)
+    
+}temperature_data;
+
+
 static uint8_t avg;
+static temperature_data min = {100, 0};
+static temperature_data max = {0, 0};
 SemaphoreHandle_t xSemaphore = NULL;
 
-void tc74_task(void* arg)
+static void tc74_task(void* arg)
 {
     i2c_master_bus_handle_t busHandle;
     i2c_master_dev_handle_t sensorHandle;
@@ -41,6 +51,16 @@ void tc74_task(void* arg)
         if(xSemaphoreTake(xSemaphore, (TickType_t) 10) == pdTRUE)
         {
             avg = (last3temps[0] + last3temps[1] + last3temps[2]) / 3;
+            if(temp <= min.temperature)
+            {
+                min.temperature = temp;
+                min.timestamp = xTaskGetTickCount();
+            }
+            if(temp >= max.temperature)
+            {
+                max.temperature = temp;
+                max.timestamp = xTaskGetTickCount();
+            }
             xSemaphoreGive( xSemaphore );
         }
         
@@ -72,7 +92,18 @@ void task2(void *args){
         if (length > 0) {
             if(xSemaphoreTake(xSemaphore, (TickType_t) 10) == pdTRUE)
             {
-                printf("Average temperature: %d\n", avg);
+                if(data[0] == 'm')
+                {
+                    printf("[timestamp: %5ld] Minimum temperature: %d\n", min.timestamp ,min.temperature);
+                }
+                else if(data[0] == 'M')
+                {
+                    printf("[timestamp: %5ld] Maximum temperature: %d\n", max.timestamp ,max.temperature);
+                }
+                else if(data[0] == 'a')
+                {
+                    printf("Average temperature: %d\n", avg);
+                }
                 xSemaphoreGive( xSemaphore );
             }
            
