@@ -13,49 +13,44 @@
 #include "esp_log.h"
 #include "led_strip.h"
 #include "sdkconfig.h"
-#include "driver/ledc.h"
+#include "driver/ledc.h"            // for PWM
+#include "esp_timer.h"
+#include "esp_log.h"
 
 static const char *TAG = "example";
 
 /* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+#define BLINK_GPIO GPIO_NUM_1
 
 // PWM Configuration
 #define LEDC_TIMER          LEDC_TIMER_0
 #define LEDC_MODE           LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO      (1) // Define the output GPIO
 #define LEDC_CHANNEL        LEDC_CHANNEL_0
-#define LEDC_DUTY_RES       LEDC_TIMER_13_BIT  // Set duty resolution (0-8191)
-#define LEDC_FREQUENCY      5000               // Frequency of PWM signal (5kHz)
+#define LEDC_DUTY_RES       LEDC_TIMER_13_BIT  // Set duty resolution to 13 bits
+#define LEDC_FREQUENCY      300               // Frequency of PWM signal (300Hz)
 
 
-
-static void configure_led(void)
-{
-    ESP_LOGI(TAG, "Example configured to blink GPIO LED!");
-    gpio_reset_pin(BLINK_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
-}
 
 static void configure_pwm(void){
     ledc_timer_config_t ledc_timer = {
         .speed_mode      = LEDC_MODE,
+        .duty_resolution = LEDC_DUTY_RES,
         .timer_num       = LEDC_TIMER,
         .freq_hz         = LEDC_FREQUENCY,
-        .duty_resolution = LEDC_DUTY_RES,
         .clk_cfg         = LEDC_AUTO_CLK
     };
 
     ledc_timer_config(&ledc_timer);
 
     ledc_channel_config_t ledc_channel = {
-        .gpio_num   = BLINK_GPIO,
         .speed_mode = LEDC_MODE,
         .channel    = LEDC_CHANNEL,
-        .intr_type  = LEDC_INTR_DISABLE,
         .timer_sel  = LEDC_TIMER,
+        .intr_type  = LEDC_INTR_DISABLE,
+        .gpio_num   = LEDC_OUTPUT_IO,
         .duty       = 0,
         .hpoint     = 0
     };
@@ -70,14 +65,33 @@ static void set_duty_cycle(int duty_cycle)
 }
 
 
+static void periodic_timer_callback(void* arg)
+{
+    static int duty_cycle = 0;
+    duty_cycle = (duty_cycle + 10) % 110;
+    set_duty_cycle(duty_cycle);
+    ESP_LOGI(TAG, "Duty cycle: %d", duty_cycle);
+}
+
 void app_main(void)
 {
 
     /* Configure the peripheral according to the LED type */
-    configure_led();
-    // gpio_set_level(BLINK_GPIO, true);
     configure_pwm();
-    int dutycycle = 10; 
-    set_duty_cycle(dutycycle);
+
+    const esp_timer_create_args_t periodic_timer_args = {
+        .callback = &periodic_timer_callback,
+        /* name is optional, but may help identify the timer when debugging */
+        .name = "periodic"
+    };
+
+    esp_timer_handle_t periodic_timer;
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 2000000)); // 2s
+
+
+    while(1){ // keep the main task running
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    };
 
 }

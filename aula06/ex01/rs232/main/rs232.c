@@ -3,6 +3,9 @@
 #include <string.h>
 #include "esp_log.h"
 
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+
 const uart_port_t uart_num = UART_NUM_1;
 
 void configure_uart(){
@@ -23,10 +26,10 @@ void install_uart_driver(){
     const int uart_buffer_size = (1024 * 2);
     // QueueHandle_t uart_queue;
     // Install UART driver using an event queue here
-    ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_buffer_size, \
-                                            0,0, NULL,  0));
-    // Set UART pins(TX: IO4, RX: IO5, RTS: IO18, CTS: IO19)
-    ESP_ERROR_CHECK(uart_set_pin(uart_num, 4, 5, UART_PIN_NO_CHANGE,UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_buffer_size,0,0, NULL,  0));
+
+    // Set UART pins(uart number,TX, RX, RTS, CTS)
+    ESP_ERROR_CHECK(uart_set_pin(uart_num, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE,UART_PIN_NO_CHANGE));
 }
 
 int sendData(const char* data)
@@ -51,7 +54,7 @@ static void receive_data(void *arg)
 
 void app_main(void)
 {
-    // DONT FORGET TO CONNECT GPIO 4 AND 5
+    // Don't forget to connect gpio 4 and 5
     configure_uart();
     install_uart_driver();
 

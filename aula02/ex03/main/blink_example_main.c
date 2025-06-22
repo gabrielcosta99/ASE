@@ -96,7 +96,6 @@ void app_main(void)
 
     /* Configure the peripheral according to the LED type */
     configure_led();
-    // gpio_set_level(BLINK_GPIO, true);
     configure_pwm();
     configure_uart();
     uint8_t data[2];  // Buffer to store user input
@@ -115,11 +114,7 @@ void app_main(void)
             dutycycle = (data[0] - '0') * 10 + (data[1] - '0');
         }
         set_duty_cycle(dutycycle);
-        // scanf("%d", &dutycycle);
-
-        // if(dutycycle < 0 || dutycycle > 100){
-        //     printf("Invalid value. Please enter a value between 0 and 100\n");
-        //     continue;
-        // }
+   
+        
     }
 }

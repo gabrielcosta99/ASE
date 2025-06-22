@@ -37,7 +37,7 @@
 // #else
 // static adc_channel_t channel[2] = {ADC_CHANNEL_2, ADC_CHANNEL_3};
 // #endif
-static adc_channel_t channel[2] = {ADC_CHANNEL_4, ADC_CHANNEL_5};
+static adc_channel_t channel[1] = {ADC_CHANNEL_4};
 
 static TaskHandle_t s_task_handle;
 static const char *TAG = "EXAMPLE";
@@ -127,7 +127,8 @@ void app_main(void)
                     uint32_t data = EXAMPLE_ADC_GET_DATA(p);
                     /* Check the channel number validation, the data is invalid if the channel num exceed the maximum channel */
                     if (chan_num < SOC_ADC_CHANNEL_NUM(EXAMPLE_ADC_UNIT)) {
-                        ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %"PRIx32, unit, chan_num, data);
+                        ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %d", unit, chan_num,(int) data);
+                        // ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %"PRIx32, unit, chan_num, data);
                     } else {
                         ESP_LOGW(TAG, "Invalid data [%s_%"PRIu32"_%"PRIx32"]", unit, chan_num, data);
                     }

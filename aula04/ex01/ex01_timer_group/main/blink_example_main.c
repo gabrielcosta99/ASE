@@ -13,22 +13,24 @@
 #include "esp_log.h"
 #include "led_strip.h"
 #include "sdkconfig.h"
-#include "driver/ledc.h"
+#include "driver/ledc.h"            // for PWM
+#include "driver/gptimer.h"
+#include "esp_log.h"
 
 static const char *TAG = "example";
 
 /* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+#define BLINK_GPIO GPIO_NUM_1
 
 // PWM Configuration
 #define LEDC_TIMER          LEDC_TIMER_0
 #define LEDC_MODE           LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO      (1) // Define the output GPIO
 #define LEDC_CHANNEL        LEDC_CHANNEL_0
-#define LEDC_DUTY_RES       LEDC_TIMER_13_BIT  // Set duty resolution (0-8191)
-#define LEDC_FREQUENCY      5000               // Frequency of PWM signal (5kHz)
-
+#define LEDC_DUTY_RES       LEDC_TIMER_13_BIT  // Set duty resolution to 13 bits
+#define LEDC_FREQUENCY      300               // Frequency of PWM signal (300Hz)
 
 
 static void configure_led(void)
@@ -42,20 +44,20 @@ static void configure_led(void)
 static void configure_pwm(void){
     ledc_timer_config_t ledc_timer = {
         .speed_mode      = LEDC_MODE,
+        .duty_resolution = LEDC_DUTY_RES,
         .timer_num       = LEDC_TIMER,
         .freq_hz         = LEDC_FREQUENCY,
-        .duty_resolution = LEDC_DUTY_RES,
         .clk_cfg         = LEDC_AUTO_CLK
     };
 
     ledc_timer_config(&ledc_timer);
 
     ledc_channel_config_t ledc_channel = {
-        .gpio_num   = BLINK_GPIO,
         .speed_mode = LEDC_MODE,
         .channel    = LEDC_CHANNEL,
-        .intr_type  = LEDC_INTR_DISABLE,
         .timer_sel  = LEDC_TIMER,
+        .intr_type  = LEDC_INTR_DISABLE,
+        .gpio_num   = LEDC_OUTPUT_IO,
         .duty       = 0,
         .hpoint     = 0
     };
@@ -70,14 +72,61 @@ static void set_duty_cycle(int duty_cycle)
 }
 
 
+
+static volatile int latest_duty_cycle = 0; 
+
+static bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_data){
+    static int duty_cycle = 0;
+    duty_cycle = (duty_cycle + 10) % 110;
+    set_duty_cycle(duty_cycle);
+    latest_duty_cycle = duty_cycle;
+    return true;
+}
+
+
+void configure_timer(){
+    gptimer_handle_t gptimer = NULL;
+    gptimer_config_t timer_config = {
+        .clk_src = GPTIMER_CLK_SRC_DEFAULT,
+        .direction = GPTIMER_COUNT_UP,
+        .resolution_hz = 1000000, // 1MHz, 1 tick=1us
+    };
+
+    ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
+
+    gptimer_event_callbacks_t cbs = {
+        .on_alarm = gptimer_callback,
+    };
+    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));
+
+
+    ESP_LOGI(TAG, "Enable timer");
+    ESP_ERROR_CHECK(gptimer_enable(gptimer));
+
+
+    ESP_LOGI(TAG, "Start timer, with a period of 2 second");
+    gptimer_alarm_config_t alarm_config = {
+        .alarm_count = 2000000, // period = 2s
+        .reload_count = 0,      // Start from 0
+        .flags.auto_reload_on_alarm = true
+    };
+    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &alarm_config));
+    ESP_ERROR_CHECK(gptimer_start(gptimer));
+}
+
+
+
 void app_main(void)
 {
 
     /* Configure the peripheral according to the LED type */
     configure_led();
-    // gpio_set_level(BLINK_GPIO, true);
     configure_pwm();
-    int dutycycle = 10; 
-    set_duty_cycle(dutycycle);
+    configure_timer();
+
+    while(1){
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    };
 
 }

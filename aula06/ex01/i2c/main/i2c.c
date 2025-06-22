@@ -39,13 +39,7 @@ void config_i2c(){
 
     ESP_ERROR_CHECK(i2c_master_bus_add_device(pBusHandle, &i2cDevCfg, &pMasterHandle));
 
-    // i2c_slave_config_t slave_cfg = {
-    //     .sda_io_num = SDAPIN,
-    //     .scl_io_num = SCLPIN,
-    //     .slave_addr = ESP_SLAVE_ADDR,
-    // };
-
-    // ESP_ERROR_CHECK(i2c_new_slave_device(&slave_cfg, &slave_handle));
+    
 }
 
 void send_data(){

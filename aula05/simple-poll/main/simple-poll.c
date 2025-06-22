@@ -30,10 +30,7 @@ static void ToggleLed(void)
 
 void app_main(void)
 {  
-   /*
-   uint8_t prevSwVal = 0;
-   uint8_t currSwVal;
-   */
+ 
    
    ConfigureGPIOs();
    
@@ -42,13 +39,7 @@ void app_main(void)
       while(!ReadSw());
       ToggleLed();
       while(ReadSw());
-      /*
-      currSwVal = ReadSw();
-      if ((!prevSwVal) && (currSwVal))
-      {
-         ToggleLed();
-      }
-      prevSwVal = currSwVal;
-      */
+
+      
    }
 }

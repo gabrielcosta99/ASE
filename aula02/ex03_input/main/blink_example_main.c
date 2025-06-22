@@ -62,16 +62,8 @@ void app_main(void)
     /* Configure the peripheral according to the LED type */
     configure_led();
     configure_uart();
-    while (1) {
-        // ESP_LOGI(TAG, "Turning the LED %s!", s_led_state == true ? "ON" : "OFF");
-
-        // blink_led(s_led_state);
-        // /* Toggle the LED state */
-        // s_led_state = !s_led_state;
-        
-        // printf("input: %d\n", input);
+    while (1) {    
         vTaskDelay(CONFIG_BLINK_PERIOD_MS / portTICK_PERIOD_MS);
-        // int length = uart_read_bytes(UART_NUM_0, data, sizeof(data), 2000 / portTICK_PERIOD_MS);
         int length = uart_read_bytes(UART_NUM_0, data, sizeof(data), 0);
         if (length > 0) {
             uart_write_bytes(UART_NUM_0, data, sizeof(data));

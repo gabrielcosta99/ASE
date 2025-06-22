@@ -37,13 +37,11 @@ static void configure_led(void)
     gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 }
 
-// Since GPIO 3 is an input, if you want it to be default ON (HIGH) when not connected, you should:
-
-//     Enable pull-up resistor (GPIO_PULLUP_ONLY) in your code.
+// Since GPIO 3 is an input, if we want it to be default ON (HIGH) when not connected, we should:
+//     Enable pull-up resistor (GPIO_PULLUP_ONLY) in our code.
 //     When connected to GND, it will read LOW (0).
 //     When disconnected or externally pulled HIGH, it will read HIGH (1).
-
-// If you want the opposite behavior (default OFF (LOW)), use GPIO_PULLDOWN_ONLY.
+// If we want the opposite behavior (default OFF (LOW)), we use GPIO_PULLDOWN_ONLY.
 static void configure_gpio_input(void)
 {
     ESP_LOGI(TAG, "Configuring input on GPIO %d", INPUT_GPIO);
@@ -56,7 +54,6 @@ static void configure_gpio_input(void)
 
 void app_main(void)
 {
-
     /* Configure the peripheral according to the LED type */
     configure_led();
     configure_gpio_input();
@@ -66,7 +63,7 @@ void app_main(void)
         blink_led();
         /* Toggle the LED state */
         // s_led_state = !s_led_state;
-        s_led_state = gpio_get_level(INPUT_GPIO);   // to turn on the LED, connect GPIO 3 to "+". To turn off the LED, connect GPIO 3 to GND.
+        s_led_state = gpio_get_level(INPUT_GPIO);   // to turn on the LED, connect GPIO 3 to "+" (3V3). To turn off the LED, connect GPIO 3 to GND.
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
     }
 }

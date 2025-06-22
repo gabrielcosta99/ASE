@@ -72,10 +72,6 @@ void app_main(void)
         }
         vTaskDelay(100 / portTICK_PERIOD_MS); // Small delay to prevent busy waiting
     }
+
     
-
-    // while (1) {
-
-    //     set_duty_cycle(dutycycle);
-    // }
 }
