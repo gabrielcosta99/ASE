@@ -108,7 +108,6 @@ static void bme280_task(void* arg)
         return;
     }
 
-    printf("here\n");
 
     const TickType_t xFrequency = 1000 / portTICK_PERIOD_MS;   // delay duration (1 second)
     BaseType_t xWasDelayed;

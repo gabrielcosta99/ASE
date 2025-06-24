@@ -50,10 +50,10 @@ pin_configuration_t config = {
 
 // Pin assignments can be set in menuconfig, see "SD SPI Example Configuration" menu.
 // You can also change the pin assignments here by changing the following 4 lines.
-#define PIN_NUM_MISO  CONFIG_EXAMPLE_PIN_MISO
-#define PIN_NUM_MOSI  CONFIG_EXAMPLE_PIN_MOSI
-#define PIN_NUM_CLK   CONFIG_EXAMPLE_PIN_CLK
-#define PIN_NUM_CS    CONFIG_EXAMPLE_PIN_CS
+#define PIN_NUM_MISO  6
+#define PIN_NUM_MOSI  8
+#define PIN_NUM_CLK   7
+#define PIN_NUM_CS    9
 
 static esp_err_t s_example_write_file(const char *path, char *data)
 {
@@ -122,7 +122,6 @@ void app_main(void)
     // For setting a specific frequency, use host.max_freq_khz (range 400kHz - 20MHz for SDSPI)
     // Example: for fixed frequency of 10MHz, use host.max_freq_khz = 10000;
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-    host.max_freq_khz = 400; // Set the frequency from menuconfig
 
     // For SoCs where the SD power can be supplied both via an internal or external (e.g. on-board LDO) power supply.
     // When using specific IO pins (which can be used for ultra high-speed SDMMC) to connect to the SD card
